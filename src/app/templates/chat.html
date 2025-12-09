@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block title %}AI Chat - LogUtil{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/query.css') }}">
+<style>
+.chat-container { max-width: 800px; margin: 0 auto; }
+.chat-log { border: 1px solid #ccc; border-radius: 6px; padding: 12px; height: 320px; overflow-y: auto; background: #fafafa; }
+.chat-input { display: flex; gap: 8px; margin-top: 12px; }
+.chat-input textarea { flex: 1; min-height: 60px; }
+.chat-input button { min-width: 120px; }
+.message { margin: 8px 0; }
+.message.user { color: #1f6feb; }
+.message.assistant { color: #8250df; }
+.error { color: #c62828; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="chat-container">
+  <h1>AI Chat</h1>
+  <p>Ask questions about your logs or anything. This uses your OpenAI API key configured in the app.</p>
+  <div id="chatLog" class="chat-log"></div>
+  <div class="chat-input">
+    <textarea id="chatInput" placeholder="Type your message..."></textarea>
+    <button id="sendBtn">Send</button>
+  </div>
+  <div id="chatError" class="error" style="display:none"></div>
+</div>
+
+<script>
+(function(){
+  const chatLog = document.getElementById('chatLog');
+  const chatInput = document.getElementById('chatInput');
+  const sendBtn = document.getElementById('sendBtn');
+  const chatError = document.getElementById('chatError');
+
+  let rateLimitTimer = null;
+
+  function addMessage(role, text){
+    const div = document.createElement('div');
+    div.className = `message ${role}`;
+    div.textContent = `${role === 'user' ? 'You' : 'Assistant'}: ${text}`;
+    chatLog.appendChild(div);
+    chatLog.scrollTop = chatLog.scrollHeight;
+  }
+
+  function setError(msg){
+    chatError.textContent = msg;
+    chatError.style.display = 'block';
+  }
+
+  function clearError(){
+    chatError.style.display = 'none';
+    chatError.textContent = '';
+  }
+
+  function disableSend(ms){
+    if(rateLimitTimer){
+      clearTimeout(rateLimitTimer);
+      rateLimitTimer = null;
+    }
+    sendBtn.disabled = true;
+    if(ms && ms > 0){
+      rateLimitTimer = setTimeout(() => {
+        sendBtn.disabled = false;
+      }, ms);
+    }
+  }
+
+  async function send(){
+    const content = (chatInput.value || '').trim();
+    if(!content) return;
+    clearError();
+    addMessage('user', content);
+    chatInput.value = '';
+
+    try {
+      const resp = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: [{ role: 'user', content }],
+          model: '{{ openai_model }}'
+        })
+      });
+      const retryAfterHeader = resp.headers.get('Retry-After');
+      const data = await resp.json().catch(() => ({}));
+
+      if(!resp.ok){
+        if(resp.status === 429){
+          const retrySec = retryAfterHeader ? parseInt(retryAfterHeader, 10) : null;
+          const waitMs = (retrySec && retrySec > 0) ? retrySec * 1000 : 5000; // default 5s if unknown
+          disableSend(waitMs);
+          const msg = (data && data.error) ? data.error : 'Rate limit reached. Please wait and try again.';
+          setError(msg);
+          return;
+        }
+        const msg = (data && data.error) ? data.error : `HTTP ${resp.status}`;
+        setError(`Error: ${msg}`);
+        return;
+      }
+      addMessage('assistant', (data.reply || '(no reply)'));
+    } catch(e){
+      setError(`Network error: ${e}`);
+    }
+  }
+
+  sendBtn.addEventListener('click', send);
+  chatInput.addEventListener('keydown', function(e){
+    if(e.key === 'Enter' && (e.ctrlKey || e.metaKey)){
+      e.preventDefault();
+      send();
+    }
+  });
+})();
+</script>
+{% endblock %}

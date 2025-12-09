@@ -1,0 +1,235 @@
+.hero {
+    text-align: center;
+    padding: 3rem 0;
+}
+
+.hero h1 {
+    font-size: 2.5rem;
+    color: #2c3e50;
+    margin-bottom: 1rem;
+    font-weight: 300;
+}
+
+.hero p {
+    font-size: 1.2rem;
+    color: #7f8c8d;
+    margin-bottom: 3rem;
+}
+
+.action-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.action-grid-bottom {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.action-button {
+    display: block;
+    padding: 1.5rem 2rem;
+    text-align: center;
+    text-decoration: none;
+    font-size: 1.1rem;
+    font-weight: 500;
+    border-radius: 8px;
+    border: 2px solid;
+    transition: all 0.3s;
+    background-color: white;
+}
+
+.action-button.primary {
+    color: #3498db;
+    border-color: #3498db;
+}
+
+.action-button.primary:hover {
+    background-color: #3498db;
+    color: white;
+}
+
+.action-button.secondary {
+    color: #7f8c8d;
+    border-color: #bdc3c7;
+}
+
+.action-button.secondary:hover {
+    background-color: #ecf0f1;
+}
+
+.action-button.danger {
+    color: #e74c3c;
+    border-color: #e74c3c;
+}
+
+.action-button.danger:hover {
+    background-color: #e74c3c;
+    color: white;
+}
+
+.chat-section {
+    max-width: 900px;
+    margin: 2rem auto 3rem;
+    padding: 0 1rem;
+}
+
+.chat-card {
+    background: #ffffff;
+    border: 1px solid #ecf0f1;
+    border-radius: 12px;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.06);
+    padding: 1.5rem;
+}
+
+.chat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    gap: 1rem;
+}
+
+.chat-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin: 0;
+}
+
+.chat-subtitle {
+    margin: 0.2rem 0 0;
+    color: #7f8c8d;
+}
+
+.chat-pill {
+    background: #e8f4ff;
+    color: #2980b9;
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    border: 1px solid #d6e9ff;
+}
+
+.chat-thread {
+    max-height: 320px;
+    overflow-y: auto;
+    border: 1px solid #ecf0f1;
+    border-radius: 10px;
+    padding: 1rem;
+    background: #fdfefe;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+.chat-message {
+    display: flex;
+}
+
+.chat-message.user {
+    justify-content: flex-end;
+}
+
+.chat-message.assistant {
+    justify-content: flex-start;
+}
+
+.chat-bubble {
+    padding: 0.75rem 1rem;
+    border-radius: 10px;
+    max-width: 80%;
+    line-height: 1.45;
+    font-size: 0.95rem;
+    border: 1px solid #ecf0f1;
+}
+
+.chat-message.user .chat-bubble {
+    background: #e8f4ff;
+    color: #2c3e50;
+    border-color: #d6e9ff;
+}
+
+.chat-message.assistant .chat-bubble {
+    background: #f7f9fa;
+    color: #2c3e50;
+}
+
+.chat-form {
+    margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.chat-form textarea {
+    width: 100%;
+    padding: 0.85rem;
+    border: 1px solid #bdc3c7;
+    border-radius: 10px;
+    resize: vertical;
+    min-height: 80px;
+    font-size: 0.95rem;
+}
+
+.chat-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.chat-status {
+    color: #7f8c8d;
+    font-weight: 600;
+    min-height: 1.2rem;
+}
+
+.chat-send {
+    padding: 0.75rem 1.4rem;
+    background: #3498db;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.chat-send:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(52, 152, 219, 0.35);
+}
+
+.chat-send:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.chat-hint {
+    margin: 0.25rem 0 0;
+    color: #95a5a6;
+    font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+    .action-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .action-grid-bottom {
+        grid-template-columns: 1fr;
+    }
+
+    .chat-thread {
+        max-height: 260px;
+    }
+}

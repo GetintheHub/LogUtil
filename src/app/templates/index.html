@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block title %}Home - LogUtil{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="hero">
+    <h1>LogUtil Log Management System</h1>
+    <p>Upload, browse, query, and manage your log data with ease.</p>
+
+    <div class="action-grid">
+        <a href="/upload" class="action-button primary">Upload Data</a>
+        <a href="/view" class="action-button primary">Browse Records</a>
+        <a href="/query" class="action-button primary">Query Data</a>
+        <!---<a href="/chat" class="action-button primary">AI Chat</a>--->
+    </div>
+
+    <div class="action-grid-bottom">
+        <a href="/download" class="action-button secondary">Download Data</a>
+
+        <form id="purge-form" action="/purge" method="post" style="display:inline;">
+            <input type="hidden" name="token" value="confirm-purge">
+            <button id="purge-btn" type="submit" class="action-button danger">Delete All Records</button>
+        </form>
+
+        <div id="purge-status" class="status"></div>
+    </div>
+</div>
+
+<div class="chat-section">
+    <div class="chat-card">
+        <div class="chat-header">
+            <div>
+                <p class="chat-title">Chat with Gemini</p>
+                <p class="chat-subtitle">Ask questions about your logs, next steps, or anything.</p>
+            </div>
+            <span class="chat-pill">Google Gemini</span>
+        </div>
+        <div id="chat-thread" class="chat-thread" aria-live="polite"></div>
+        <form id="chat-form" class="chat-form">
+            <textarea id="chat-input" rows="3" placeholder="Type a question..." aria-label="Chat input"></textarea>
+            <div class="chat-actions">
+                <span id="chat-status" class="chat-status"></span>
+                <button id="chat-send" type="submit" class="chat-send">Send</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+(function () {
+  const form = document.getElementById('purge-form');
+  const btn = document.getElementById('purge-btn');
+  const statusEl = document.getElementById('purge-status');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    if (!confirm('Are you sure you want to delete all records? This action cannot be undone.')) {
+      return;
+    }
+
+    btn.disabled = true;
+    statusEl.textContent = 'Processing...';
+
+    try {
+      const res = await fetch(form.action, {
+        method: 'POST',
+        headers: { 'Accept': 'application/json' },
+        body: new FormData(form)
+      });
+      const data = await res.json().catch(() => ({}));
+      statusEl.textContent = res.ok
+        ? (data.message || 'Purge completed.')
+        : (data.message || 'Purge failed.');
+    } catch (err) {
+      statusEl.textContent = 'Request failed.';
+    } finally {
+      btn.disabled = false;
+    }
+  });
+})();
+
+(function () {
+  const chatForm = document.getElementById('chat-form');
+  const chatInput = document.getElementById('chat-input');
+  const chatThread = document.getElementById('chat-thread');
+  const chatSend = document.getElementById('chat-send');
+  const chatStatus = document.getElementById('chat-status');
+
+  if (!chatForm) return;
+
+  const addMessage = (role, text) => {
+    const item = document.createElement('div');
+    item.className = `chat-message ${role}`;
+    const bubble = document.createElement('div');
+    bubble.className = 'chat-bubble';
+    bubble.textContent = text;
+    item.appendChild(bubble);
+    chatThread.appendChild(item);
+    chatThread.scrollTop = chatThread.scrollHeight;
+  };
+
+  chatForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const message = (chatInput.value || '').trim();
+    if (!message) return;
+
+    addMessage('user', message);
+    chatInput.value = '';
+    chatSend.disabled = true;
+    chatStatus.textContent = 'Thinking...';
+
+    try {
+      const res = await fetch('/api/gemini_chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message })
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.reply) {
+        addMessage('assistant', data.reply);
+        chatStatus.textContent = '';
+      } else {
+        addMessage('assistant', data.error || 'Failed to get a response.');
+        chatStatus.textContent = '';
+      }
+    } catch (err) {
+      addMessage('assistant', 'Network error talking to Gemini.');
+      chatStatus.textContent = '';
+    } finally {
+      chatSend.disabled = false;
+      chatInput.focus();
+    }
+  });
+})();
+</script>
+{% endblock %}

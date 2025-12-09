@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}Browse Records - LogUtil{% endblock %}
+
+{% block styles %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/view.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="view-container" style="display:flex; flex-direction:column; align-items:center; gap:1rem;">
+    <h2>Log Entries (`log_entry`)</h2>
+
+    <div class="records-table-container" style="width:100%; max-width:1000px; margin:0 auto;">
+        {% if logs and logs|length > 0 %}
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:1rem; background:#f8f9fa; border-bottom:1px solid #ecf0f1; gap:1rem; flex-wrap:wrap;">
+            <div style="font-weight:600; color:#2c3e50;">
+                Showing {{ page_start }}-{{ page_end }} of {{ total_count }} log entries
+            </div>
+            <form method="get" action="{{ url_for('list_logs') }}" style="display:flex; align-items:center; gap:0.5rem;">
+                <label for="per_page" style="font-weight:600; color:#2c3e50;">Rows per page</label>
+                <select id="per_page" name="per_page" onchange="this.form.submit()" style="padding:0.35rem 0.5rem; border:1px solid #bdc3c7; border-radius:4px;">
+                    <option value="10" {% if per_page == 10 %}selected{% endif %}>10</option>
+                    <option value="20" {% if per_page == 20 %}selected{% endif %}>20</option>
+                </select>
+                <input type="hidden" name="page" value="1">
+            </form>
+        </div>
+        <table class="records-table" style="width:100%; border-collapse:collapse;">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Filename</th>
+                <th>Content</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for row in logs %}
+            <tr>
+                <td>{{ row.id }}</td>
+                <td>{{ row.filename }}</td>
+                <td>{{ row.content }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <div class="pagination">
+            <a class="page-btn {% if page == 1 %}disabled{% endif %}" href="{{ url_for('list_logs', page=page-1, per_page=per_page) }}">Previous</a>
+            {% for p in page_numbers %}
+                {% if p %}
+                    {% if p == page %}
+                    <span class="page-btn current">{{ p }}</span>
+                    {% else %}
+                    <a class="page-btn" href="{{ url_for('list_logs', page=p, per_page=per_page) }}">{{ p }}</a>
+                    {% endif %}
+                {% else %}
+                <span class="page-ellipsis">…</span>
+                {% endif %}
+            {% endfor %}
+            <a class="page-btn {% if page == total_pages %}disabled{% endif %}" href="{{ url_for('list_logs', page=page+1, per_page=per_page) }}">Next</a>
+            <form class="page-jump" method="get" action="{{ url_for('list_logs') }}">
+                <label for="page-input" style="color:#2c3e50; font-weight:600;">Jump to</label>
+                <input id="page-input" name="page" type="number" min="1" max="{{ total_pages }}" value="{{ page }}" aria-label="Page number">
+                <input type="hidden" name="per_page" value="{{ per_page }}">
+                <button type="submit" class="page-btn">Go</button>
+            </form>
+        </div>
+        {% else %}
+        <div class="no-records" style="text-align:center;">
+            <p>No log entries found.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

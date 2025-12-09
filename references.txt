@@ -1,0 +1,17 @@
+Research for this project:
+
+https://flask.palletsprojects.com/en/stable/
+
+https://www.sqlite.org/docs.html
+
+https://www.jetbrains.com/help/pycharm/sqlite.html
+
+https://www.w3schools.com/html/html_css.asp
+
+Additional references:
+https://github.com/Trevor-M-Danielewski/NetLogUtil
+
+A program I developed during my internship with RTX. This project took a total of 4-6 weeks to complete in its rough state, but it
+was usable. NetLogUtil was the inspiration for this project, and it was the first time I had worked with Flask and SQLite.
+
+If there are any questions or concerns, please reach out to me directly at tdanie5@students.towson.edu

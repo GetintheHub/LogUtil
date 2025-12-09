@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}Upload Data - LogUtil{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/upload.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="upload-container">
+    <h2>Upload Log Files</h2>
+
+    <form class="upload-form" method="POST" enctype="multipart/form-data">
+        <div class="form-group">
+            <label for="files">Select Log Files</label>
+            <div class="file-input-wrapper" onclick="document.getElementById('files').click()">
+                <input type="file" id="files" name="files" accept=".log,.txt,.csv" multiple required>
+                <p>📁 Click to browse or drag and drop files here</p>
+                <p class="file-helper-text">Supported formats: .log, .txt, .csv</p>
+            </div>
+            <div id="file-info" class="file-info" style="display: none;"></div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Upload Files</button>
+    </form>
+
+    <div class="upload-instructions">
+        <h3>Instructions:</h3>
+        <ul>
+            <li>Select valid UDR traffic log files</li>
+            <li>Supported formats: LOG, TXT, CSV</li>
+            <li>Maximum file size: 100MB per file</li>
+            <li>Files will be processed and records will be added to the database</li>
+        </ul>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.getElementById('files').addEventListener('change', function() {
+        const fileInfo = document.getElementById('file-info');
+        if (this.files.length > 0) {
+            const list = Array.from(this.files)
+                .map(f => `• ${f.name} (${(f.size / 1024 / 1024).toFixed(2)} MB)`)
+                .join('<br>');
+            fileInfo.innerHTML = `Selected ${this.files.length} file(s):<br>${list}`;
+            fileInfo.style.display = 'block';
+        } else {
+            fileInfo.style.display = 'none';
+        }
+    });
+</script>
+{% endblock %}
